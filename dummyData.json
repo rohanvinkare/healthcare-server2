@@ -1,0 +1,67 @@
+[
+  { "Patient": "To Add the Patient in the db" },
+
+  {
+    "first_name": "John",
+    "last_name": "Doe",
+    "date_of_birth": "1985-07-15",
+    "gender": "male",
+    "contact_number": "9876543210",
+    "emergency_contact": {
+      "name": "Jane Doe",
+      "relationship": "spouse",
+      "contact_number": "8765432109"
+    },
+    "address": {
+      "street": "123 Elm Street",
+      "city": "New York",
+      "state": "NY",
+      "postal_code": "10001",
+      "country": "USA"
+    },
+    "blood_type": "O+",
+    "patient_type": "adult",
+    "lifestyle": {
+      "diet": "omnivore",
+      "physical_activity": "moderately active",
+      "smoking_status": "non-smoker",
+      "alcohol_consumption": "light drinker",
+      "stress_level": "moderate",
+      "sleep_quality": "good"
+    },
+    "height": 175,
+    "weight": 72,
+    "allergies": ["pollen", "penicillin"],
+    "medical_history": ["hypertension", "asthma"],
+    "current_medications": [
+      {
+        "name": "Metformin",
+        "dosage": "500mg",
+        "frequency": "twice daily",
+        "start_date": "2024-01-10"
+      }
+    ],
+    "insurance_information": {
+      "provider": "HealthCare Inc.",
+      "policy_number": "HC123456789",
+      "expiration_date": "2026-12-31"
+    },
+    "assigned_doctor_id": ["DOC12345"],
+    "assigned_nurse_id": ["NUR67890"]
+  },
+
+  { "Doctor": "To Add the Nurse in the db" },
+  {
+    "first_name": "Meera",
+    "last_name": "Iyer",
+    "license_number": "N12347",
+    "contact_number": "9867543210",
+    "email": "meera.iyer@example.com",
+    "department": "Pediatrics",
+    "shift_information": {
+      "shift_type": "evening",
+      "start_time": "14:00",
+      "end_time": "22:00"
+    }
+  }
+]

@@ -154,12 +154,12 @@ const patientSchema = new mongoose.Schema({
         required: true
     },
     assigned_doctor_id: {
-        type: String,
-        required: true // Reference to Doctor
+        type: [String], // Changed to an array of strings
+        required: true // Reference to multiple doctors
     },
     assigned_nurse_id: {
-        type: String,
-        required: true // Reference to Nurse
+        type: [String], // Changed to an array of strings
+        required: true // Reference to multiple nurses
     }
 });
 
