@@ -5,7 +5,7 @@ const patientSchema = new mongoose.Schema({
     patient_id: {
         type: String,
         unique: true,
-        default: uuidv4
+        // default: uuidv4
     },
     first_name: {
         type: String,

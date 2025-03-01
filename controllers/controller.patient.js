@@ -1,11 +1,16 @@
 const { validationResult } = require("express-validator");
+const { addTaskToQueue } = require("../utils/taskQueue");
 const Patient = require("../models/model.patient");
 const Doctor = require("../models/model.doctor");
 const Nurse = require("../models/model.nurse");
+const VitalSigns = require("../models/model.vital");
+const { v4: uuidv4 } = require('uuid');
+
 
 /**
  * Controller to add a new patient
  */
+
 const addPatient = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -34,11 +39,10 @@ const addPatient = async (req, res) => {
             medical_history,
             current_medications,
             insurance_information,
-            assigned_doctor_id = [], // Default to empty array
-            assigned_nurse_id = [],  // Default to empty array
+            assigned_doctor_id = [],
+            assigned_nurse_id = [],
         } = req.body;
 
-        // Check if phone number already exists
         const existingPatient = await Patient.findOne({ contact_number });
         if (existingPatient) {
             return res.status(400).json({
@@ -47,7 +51,6 @@ const addPatient = async (req, res) => {
             });
         }
 
-        // Ensure assigned_doctor_id and assigned_nurse_id are arrays
         if (!Array.isArray(assigned_doctor_id) || !Array.isArray(assigned_nurse_id)) {
             return res.status(400).json({
                 success: false,
@@ -55,7 +58,6 @@ const addPatient = async (req, res) => {
             });
         }
 
-        // Validate if doctors exist
         const doctors = await Doctor.find({ doctor_id: { $in: assigned_doctor_id } });
         if (doctors.length !== assigned_doctor_id.length) {
             return res.status(400).json({
@@ -64,7 +66,6 @@ const addPatient = async (req, res) => {
             });
         }
 
-        // Validate if nurses exist
         const nurses = await Nurse.find({ nurse_id: { $in: assigned_nurse_id } });
         if (nurses.length !== assigned_nurse_id.length) {
             return res.status(400).json({
@@ -73,8 +74,11 @@ const addPatient = async (req, res) => {
             });
         }
 
-        // Create new patient
+        // Generate UUID for patient_id in controller
+        const patient_id = uuidv4();
+
         const newPatient = new Patient({
+            patient_id, // Assign the generated UUID
             first_name,
             last_name,
             date_of_birth,
@@ -97,7 +101,6 @@ const addPatient = async (req, res) => {
 
         await newPatient.save();
 
-        // Add patient_id to each assigned doctor's and nurse's case list
         await Doctor.updateMany(
             { doctor_id: { $in: assigned_doctor_id } },
             { $push: { case_ids: newPatient.patient_id } }
@@ -108,10 +111,14 @@ const addPatient = async (req, res) => {
             { $push: { case_ids: newPatient.patient_id } }
         );
 
+        // Send task to worker for background processing
+        addTaskToQueue(newPatient.patient_id, newPatient.toObject());
+
         return res.status(201).json({
             success: true,
             msg: "Patient added successfully",
             patient: newPatient,
+            patient_id: newPatient.patient_id,
         });
     } catch (error) {
         console.error("Error adding patient:", error);
@@ -165,12 +172,15 @@ const deletePatient = async (req, res) => {
             );
         }
 
+        // Delete all vital records for this patient
+        await VitalSigns.deleteOne({ patient_id });
+
         // Delete the patient
         await Patient.deleteOne({ patient_id });
 
         return res.status(200).json({
             success: true,
-            msg: "Patient deleted successfully",
+            msg: "Patient and related vital records deleted successfully",
         });
     } catch (error) {
         console.error("Error deleting patient:", error);

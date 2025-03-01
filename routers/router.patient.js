@@ -25,6 +25,8 @@ const { addPatient, deletePatient } = require("../controllers/controller.patient
 //------ Create Patient
 router.post("/patient/add-patient", addPatientValidator, addPatient);
 
+
+
 // ------ Delete Patient
 router.delete("/patient/delete-patient/:patient_id", deletePatientValidator, deletePatient);
 
